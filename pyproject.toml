@@ -1,0 +1,5 @@
+[tool.pytest.ini_options]
+# src/ holds the `jobpipe` package; the repo root holds `config` and `pipelines`.
+pythonpath = ["src", "."]
+testpaths = ["tests"]
+addopts = "-ra"

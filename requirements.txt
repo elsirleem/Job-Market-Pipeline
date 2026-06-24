@@ -1,0 +1,8 @@
+# Pinned for a reproducible Spark 3.5 + Delta 3.2 runtime (Python 3.11, Java 17).
+pyspark==3.5.3
+delta-spark==3.2.1
+requests==2.32.3
+python-dotenv==1.0.1
+
+# Dev / test
+pytest==8.3.3

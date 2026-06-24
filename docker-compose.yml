@@ -1,0 +1,13 @@
+# Single-service dev environment. The host repo is bind-mounted so you edit
+# files locally and run them in the container with a known-good Spark stack.
+services:
+  pipeline:
+    build: .
+    image: eu-job-market-pipeline
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+    working_dir: /app
+    # Keeps the container alive so `make <target>` can exec into it repeatedly.
+    command: tail -f /dev/null
