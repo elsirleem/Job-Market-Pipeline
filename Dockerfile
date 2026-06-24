@@ -12,7 +12,7 @@ RUN apt-get update && \
 # PySpark discover it there rather than hardcoding an arch-specific JAVA_HOME.
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONPATH=/app/src
+    PYTHONPATH=/app/src:/app
 
 WORKDIR /app
 
