@@ -88,6 +88,10 @@ def _flatten(r: dict, country: str, ingested_at: str) -> dict:
     location = r.get("location") or {}
     area = location.get("area") or []
     category = (r.get("category") or {}).get("label")
+
+    def _as_float(value):
+        return float(value) if value is not None else None
+
     return {
         "source_id": str(r.get("id")) if r.get("id") is not None else None,
         "title": r.get("title"),
@@ -98,8 +102,8 @@ def _flatten(r: dict, country: str, ingested_at: str) -> dict:
         "city": area[-1] if area else None,
         "category": category,
         "contract_time": r.get("contract_time"),
-        "salary_min": r.get("salary_min"),
-        "salary_max": r.get("salary_max"),
+        "salary_min": _as_float(r.get("salary_min")),
+        "salary_max": _as_float(r.get("salary_max")),
         "created": r.get("created"),
         "description": r.get("description"),
         "redirect_url": r.get("redirect_url"),

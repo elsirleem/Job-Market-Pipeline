@@ -3,6 +3,8 @@ pyspark==3.5.3
 delta-spark==3.2.1
 requests==2.32.3
 python-dotenv==1.0.1
+pandas==2.2.3
+streamlit==1.40.2
 
 # Dev / test
 pytest==8.3.3

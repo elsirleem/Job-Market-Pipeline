@@ -35,3 +35,13 @@ def test_flatten_tolerates_missing_fields():
     assert row["company"] is None
     assert row["city"] is None
     assert row["country_code"] == "nl"
+
+
+def test_flatten_normalizes_salary_types():
+    row = _flatten(
+        {"id": 1, "salary_min": 45000, "salary_max": 55000.5},
+        country="gb",
+        ingested_at="t",
+    )
+    assert row["salary_min"] == 45000.0
+    assert row["salary_max"] == 55000.5

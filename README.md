@@ -57,6 +57,8 @@ docker compose build
 docker compose up -d
 ```
 
+The Streamlit UI will be available at <http://localhost:8501>.
+
 ### 3. Run the pipeline
 ```bash
 make all        # bronze ingest -> silver (quality-gated) -> gold
@@ -69,6 +71,11 @@ make gold
 If the container is already up, you can also rerun the full project manually:
 ```bash
 docker compose exec -T pipeline python pipelines/run_all.py
+```
+
+To start just the UI service:
+```bash
+docker compose up -d ui
 ```
 
 ### 4. Run the tests
@@ -86,6 +93,7 @@ src/jobpipe/
   skills/      keyword-taxonomy skill extractor
   quality/     data-quality gate framework
 pipelines/     runnable entrypoints (run_bronze/silver/gold/all)
+notebooks/     interactive viewer for browsing job postings and gold tables
 tests/         pure + Spark unit tests
 config/        environment-driven settings
 docs/          architecture & design notes

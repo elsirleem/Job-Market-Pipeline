@@ -12,3 +12,17 @@ services:
     # Run the full pipeline on startup, then keep the container alive so
     # `make <target>` can exec into it repeatedly.
     command: sh -lc "python pipelines/run_all.py && tail -f /dev/null"
+
+  ui:
+    build: .
+    image: eu-job-market-pipeline
+    env_file:
+      - .env
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: streamlit run streamlit_app.py --server.address=0.0.0.0 --server.port=8501
+    ports:
+      - "8501:8501"
+    depends_on:
+      - pipeline
