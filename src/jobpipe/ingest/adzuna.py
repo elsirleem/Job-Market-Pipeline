@@ -14,6 +14,7 @@ import time
 from datetime import datetime, timezone
 
 import requests
+from pyspark.sql.types import DoubleType, StringType, StructField, StructType
 
 from config.settings import Settings
 from jobpipe.common.paths import BRONZE
@@ -21,6 +22,26 @@ from jobpipe.common.paths import BRONZE
 API_TEMPLATE = "https://api.adzuna.com/v1/api/jobs/{country}/search/{page}"
 RESULTS_PER_PAGE = 50
 REQUEST_TIMEOUT = 30
+
+BRONZE_SCHEMA = StructType(
+    [
+        StructField("source_id", StringType(), True),
+        StructField("title", StringType(), True),
+        StructField("company", StringType(), True),
+        StructField("country_code", StringType(), True),
+        StructField("location_display", StringType(), True),
+        StructField("region", StringType(), True),
+        StructField("city", StringType(), True),
+        StructField("category", StringType(), True),
+        StructField("contract_time", StringType(), True),
+        StructField("salary_min", DoubleType(), True),
+        StructField("salary_max", DoubleType(), True),
+        StructField("created", StringType(), True),
+        StructField("description", StringType(), True),
+        StructField("redirect_url", StringType(), True),
+        StructField("ingested_at", StringType(), True),
+    ]
+)
 
 
 def fetch_jobs(cfg: Settings) -> list[dict]:
@@ -90,6 +111,6 @@ def write_bronze(spark, records: list[dict]) -> int:
     """Append fetched records to the bronze Delta table. Returns rows written."""
     if not records:
         return 0
-    df = spark.createDataFrame(records)
+    df = spark.createDataFrame(records, schema=BRONZE_SCHEMA)
     df.write.format("delta").mode("append").save(BRONZE)
     return df.count()

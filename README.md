@@ -50,6 +50,13 @@ make build
 make up
 ```
 
+Or run it directly with docker compose. This now starts the container, runs the
+full pipeline, and keeps the service alive afterward for optional `exec` calls:
+```bash
+docker compose build
+docker compose up -d
+```
+
 ### 3. Run the pipeline
 ```bash
 make all        # bronze ingest -> silver (quality-gated) -> gold
@@ -57,6 +64,11 @@ make all        # bronze ingest -> silver (quality-gated) -> gold
 make bronze
 make silver
 make gold
+```
+
+If the container is already up, you can also rerun the full project manually:
+```bash
+docker compose exec -T pipeline python pipelines/run_all.py
 ```
 
 ### 4. Run the tests
