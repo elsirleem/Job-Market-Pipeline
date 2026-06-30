@@ -20,6 +20,7 @@ SAMPLE = {
 
 def test_flatten_extracts_nested_fields():
     row = _flatten(SAMPLE, country="de", ingested_at="2026-06-24T00:00:00Z")
+    assert row["source_name"] == "adzuna"
     assert row["source_id"] == "12345"
     assert row["company"] == "ACME Data"
     assert row["country_code"] == "de"
@@ -31,6 +32,7 @@ def test_flatten_extracts_nested_fields():
 
 def test_flatten_tolerates_missing_fields():
     row = _flatten({"title": "Data Engineer"}, country="nl", ingested_at="t")
+    assert row["source_name"] == "adzuna"
     assert row["source_id"] is None
     assert row["company"] is None
     assert row["city"] is None

@@ -3,9 +3,9 @@
 ## Overview
 
 A medallion-architecture batch pipeline that ingests EU data-engineering job
-postings from the **Adzuna API**, refines them through **bronze → silver → gold**
-Delta Lake tables, enforces **data-quality gates**, and exposes analytics-ready
-tables for a dashboard.
+postings from the **Adzuna API**, is ready for additional sanctioned providers,
+refines the data through **bronze → silver → gold** Delta Lake tables, enforces
+**data-quality gates**, and exposes analytics-ready tables for a dashboard.
 
 ```
                  ┌──────────────┐
@@ -13,7 +13,7 @@ tables for a dashboard.
                  └──────┬───────┘
                         ▼
                  ┌──────────────┐
-                 │   BRONZE     │  append-only raw rows + ingestion metadata
+                 │   BRONZE     │  append-only raw rows + source + lineage
                  │ (Delta)      │  full audit trail, never deduped
                  └──────┬───────┘
                         ▼
@@ -49,7 +49,10 @@ tables for a dashboard.
   complexity with no freshness benefit here. (Streaming is demonstrated in a
   separate portfolio project where it *is* warranted.)
 - **Bronze is append-only; silver dedupes.** This keeps a full audit trail of what
-  the API returned each run and makes silver a deterministic, idempotent rebuild.
+  each source returned each run and makes silver a deterministic, idempotent rebuild.
+- **Sources are source-aware.** `source_name` is part of the bronze schema and
+  silver dedupes by `(source_name, source_id)` so multiple legal providers can
+  coexist without ID collisions.
 - **Skill extraction is a curated taxonomy, not ML.** Transparent, deterministic,
   fast, and easy to justify in an interview. A model would add opacity for little
   gain at this scale.

@@ -1,7 +1,8 @@
 # EU Job Market Data Pipeline
 
 A medallion-architecture data engineering pipeline that ingests **EU data
-engineering job postings** from the Adzuna API and refines them through
+engineering job postings** from the Adzuna API and is structured so additional
+legal providers can be added later, then refines them through
 **bronze → silver → gold** Delta Lake tables, with data-quality gates, unit tests
 and CI. Built with PySpark + Delta Lake, fully reproducible via Docker.
 
@@ -16,7 +17,7 @@ and CI. Built with PySpark + Delta Lake, fully reproducible via Docker.
 |----------------|------|
 | Processing     | PySpark 3.5 |
 | Storage format | Delta Lake 3.2 (medallion: bronze/silver/gold) |
-| Ingestion      | Adzuna REST API (`requests`) |
+| Ingestion      | Adzuna REST API (`requests`) with source-aware bronze rows |
 | Data quality   | Custom gate framework (error checks block the pipeline) |
 | Testing        | pytest (pure + Spark tests) |
 | Reproducibility| Docker + docker compose |
@@ -109,8 +110,9 @@ company, low skill coverage) are logged but allowed through. See
 
 ## Notes & honesty
 
-- Ingestion uses the **Adzuna API** (free tier), not scraping — stable and within
-  terms of service.
+- Ingestion uses the **Adzuna API** (free tier), not scraping. LinkedIn/Indeed
+  generally require official partner APIs or licensed feeds; this codebase is
+  set up to add more providers cleanly, but it does not scrape them.
 - Skill extraction is a transparent keyword taxonomy
   (`src/jobpipe/skills/extract.py`), easily extended.
 - The transforms are plain PySpark + Delta and **port to Databricks** with only

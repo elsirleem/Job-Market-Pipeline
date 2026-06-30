@@ -6,7 +6,7 @@ from jobpipe.transform.silver import transform_silver
 
 def _bronze_row(**overrides):
     base = dict(
-        source_id="1", title="Data Engineer", company=" ACME ", country_code="DE",
+        source_name="adzuna", source_id="1", title="Data Engineer", company=" ACME ", country_code="DE",
         city="Berlin", region="Berlin", location_display="Berlin, Germany",
         category="IT Jobs", contract_time="full_time", salary_min=40000.0,
         salary_max=50000.0, created="2026-06-01T09:00:00Z",
@@ -42,3 +42,13 @@ def test_rows_with_null_source_id_dropped(spark):
     rows = [_bronze_row(source_id=None), _bronze_row(source_id="2")]
     out = transform_silver(spark.createDataFrame(rows)).collect()
     assert [r["source_id"] for r in out] == ["2"]
+
+
+def test_dedup_is_source_aware(spark):
+    rows = [
+        _bronze_row(source_name="adzuna", source_id="1", title="A", ingested_at="2026-06-01T00:00:00Z"),
+        _bronze_row(source_name="adzuna", source_id="1", title="B", ingested_at="2026-06-02T00:00:00Z"),
+        _bronze_row(source_name="indeed", source_id="1", title="C", ingested_at="2026-06-03T00:00:00Z"),
+    ]
+    out = transform_silver(spark.createDataFrame(rows)).collect()
+    assert {(r["source_name"], r["title"]) for r in out} == {("adzuna", "B"), ("indeed", "C")}

@@ -7,6 +7,8 @@ Design notes
 * Bronze is *append-only* and stores the payload close to its raw shape plus
   ingestion metadata. We never dedupe here — silver owns that. This keeps a full
   audit trail of what the source returned on each run.
+* `source_name` is stored explicitly so multiple legal providers can coexist in
+    bronze without colliding on `source_id`.
 """
 from __future__ import annotations
 
@@ -25,6 +27,7 @@ REQUEST_TIMEOUT = 30
 
 BRONZE_SCHEMA = StructType(
     [
+        StructField("source_name", StringType(), True),
         StructField("source_id", StringType(), True),
         StructField("title", StringType(), True),
         StructField("company", StringType(), True),
@@ -93,6 +96,7 @@ def _flatten(r: dict, country: str, ingested_at: str) -> dict:
         return float(value) if value is not None else None
 
     return {
+        "source_name": "adzuna",
         "source_id": str(r.get("id")) if r.get("id") is not None else None,
         "title": r.get("title"),
         "company": company,
@@ -116,5 +120,5 @@ def write_bronze(spark, records: list[dict]) -> int:
     if not records:
         return 0
     df = spark.createDataFrame(records, schema=BRONZE_SCHEMA)
-    df.write.format("delta").mode("append").save(BRONZE)
+    df.write.format("delta").mode("append").option("mergeSchema", "true").save(BRONZE)
     return df.count()

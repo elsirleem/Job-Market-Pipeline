@@ -35,10 +35,11 @@ def build_silver(spark: SparkSession) -> DataFrame:
 
 def transform_silver(bronze: DataFrame) -> DataFrame:
     """Pure bronze->silver transform. Takes a DataFrame so it is unit-testable."""
-    # Keep the most recently ingested copy of each posting (by source_id).
-    newest = Window.partitionBy("source_id").orderBy(F.col("ingested_at").desc())
+    # Keep the most recently ingested copy of each posting per source.
+    newest = Window.partitionBy("source_name", "source_id").orderBy(F.col("ingested_at").desc())
     deduped = (
         bronze.where(F.col("source_id").isNotNull())
+        .withColumn("source_name", F.coalesce(F.col("source_name"), F.lit("adzuna")))
         .withColumn("_rn", F.row_number().over(newest))
         .where(F.col("_rn") == 1)
         .drop("_rn")
@@ -60,7 +61,7 @@ def transform_silver(bronze: DataFrame) -> DataFrame:
     )
 
     return silver.select(
-        "source_id", "title", "company", "country_code", "city", "region",
+        "source_name", "source_id", "title", "company", "country_code", "city", "region",
         "location_display", "category", "contract_time", "seniority",
         "posted_date", "skills", "clouds", "skill_count",
         "salary_min", "salary_max", "redirect_url", "ingested_at",
